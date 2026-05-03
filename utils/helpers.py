@@ -1,31 +1,33 @@
-"""
-utils/helpers.py — Shared utility functions
-"""
 from __future__ import annotations
-import isodate
 import re
 
 
-def parse_duration_seconds(iso_duration: str) -> int:
-    """Convert ISO-8601 duration (PT4M13S) → total seconds."""
+def parse_duration_seconds(val) -> int:
+    """Accept seconds (int/str) or ISO-8601 string like PT4M13S."""
+    if val is None:
+        return 0
+    if isinstance(val, (int, float)):
+        return int(val)
+    s = str(val).strip()
+    # ISO-8601
+    m = re.fullmatch(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?', s)
+    if m:
+        h, mn, sc = (int(x or 0) for x in m.groups())
+        return h * 3600 + mn * 60 + sc
+    # Plain seconds string
     try:
-        return int(isodate.parse_duration(iso_duration).total_seconds())
-    except Exception:
+        return int(s)
+    except ValueError:
         return 0
 
 
-def is_short(duration_seconds: int, title: str = "", description: str = "") -> bool:
-    """
-    Heuristic: YouTube Shorts are ≤ 60 s OR contain '#Shorts' in metadata.
-    """
-    if duration_seconds <= 60:
+def is_short(duration_seconds: int, title: str = "") -> bool:
+    if duration_seconds and duration_seconds <= 60:
         return True
-    text = (title + " " + description).lower()
-    return bool(re.search(r"#short", text))
+    return bool(re.search(r'#short', title, re.IGNORECASE))
 
 
 def safe_int(value) -> int:
-    """Coerce API string stats to int gracefully."""
     try:
         return int(value)
     except (TypeError, ValueError):
@@ -33,7 +35,6 @@ def safe_int(value) -> int:
 
 
 def format_number(n: int) -> str:
-    """Pretty-print large numbers: 1_234_567 → '1.23M'."""
     if n >= 1_000_000:
         return f"{n/1_000_000:.2f}M"
     if n >= 1_000:

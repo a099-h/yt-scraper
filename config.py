@@ -1,33 +1,24 @@
 """
-config.py — Central configuration & env loading
+config.py — Simple config. No API key. No .env file needed.
+Tweak values here directly, or they work fine as defaults.
 """
-import os
-from dotenv import load_dotenv
 
-load_dotenv()
+# Max videos to scrape per channel (split between /videos and /shorts tabs)
+MAX_RESULTS_PER_CHANNEL: int = 50
 
-# ── API ────────────────────────────────────────────────────────────────────────
-YOUTUBE_API_KEY: str = os.getenv("YOUTUBE_API_KEY", "")
+# Use headless Chromium for channel scraping (slower but bypasses bot detection)
+# Set to True if you get blocked with the default plain HTTP mode
+USE_STEALTH: bool = False
 
-if not YOUTUBE_API_KEY:
-    raise EnvironmentError(
-        "YOUTUBE_API_KEY is not set.\n"
-        "Copy .env.example → .env and fill in your key.\n"
-        "Get one at https://console.developers.google.com/ (YouTube Data API v3)."
-    )
-
-# ── Scraping defaults ──────────────────────────────────────────────────────────
-MAX_RESULTS_PER_CHANNEL: int = int(os.getenv("MAX_RESULTS", "50"))
-
-# ── Ranking weights (must sum to 1.0) ─────────────────────────────────────────
+# Ranking weights — must sum to 1.0
 RANK_WEIGHTS: dict = {
     "views":        0.40,
     "likes":        0.25,
     "comments":     0.20,
-    "engagement":   0.10,   # (likes+comments) / views
-    "duration_pts": 0.05,   # bonus points for longer videos vs shorts
+    "engagement":   0.10,
+    "duration_pts": 0.05,
 }
 
-# ── Output ─────────────────────────────────────────────────────────────────────
+import os
 OUTPUT_DIR: str = os.path.join(os.path.dirname(__file__), "output")
 os.makedirs(OUTPUT_DIR, exist_ok=True)
