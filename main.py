@@ -50,6 +50,7 @@ def build_table(df, title: str, limit: int = 20) -> Table:
     t.add_column("Eng %",      style="magenta",    justify="right")
     t.add_column("Score",      style="bold white", justify="right")
     t.add_column("Transcript", style="dim",        width=10)
+    t.add_column("Description", style="dim",       max_width=40, no_wrap=True)
 
     for _, row in df.head(limit).iterrows():
         t.add_row(
@@ -62,6 +63,7 @@ def build_table(df, title: str, limit: int = 20) -> Table:
             f"{row.get('engagement_rate', 0)*100:.2f}%",
             f"{row['score']:.4f}",
             "✓" if row.get("transcript") else "—",
+            (str(row.get("description", "") or "")[:80]) or "—",
         )
     return t
 

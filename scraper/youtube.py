@@ -114,6 +114,7 @@ def _enrich(video_id: str) -> dict:
         "comments":         safe_int(info.get("comment_count", 0)),
         "thumbnail_url":    thumb_url,
         "published_at":     info.get("upload_date", ""),
+        "description":      info.get("description", "") or "",
     }
 
 
@@ -175,6 +176,7 @@ def scrape_channel(
             "thumbnail_url":    detail.get("thumbnail_url",
                                     f"https://i.ytimg.com/vi/{vid_id}/hqdefault.jpg"),
             "video_url":        f"https://www.youtube.com/watch?v={vid_id}",
+            "description":      detail.get("description", ""),
         })
 
     return videos
